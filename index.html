@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Klikkaa tästä!</title>
+<title>Breakout</title>
 <style>
   * { box-sizing: border-box; }
   html { background: #000; }
-  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; padding: 32px 20px 24px; color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: transparent; }
+  body { margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 20px 12px 16px; color: #fff; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background: transparent; }
+  [hidden] { display: none !important; }
 
   .bg { position: fixed; inset: 0; overflow: hidden; z-index: -1; background: #000; }
   .bg span { position: absolute; width: 50vmax; height: 50vmax; border-radius: 50%; filter: blur(90px); opacity: .4; animation: drift 18s ease-in-out infinite alternate; }
@@ -15,7 +16,6 @@
   .bg span:nth-child(2) { background: #06b6d4; bottom: -20vmax; right: -10vmax; animation-duration: 24s; animation-delay: -6s; }
   .bg span:nth-child(3) { background: #ec4899; top: 30%; left: 40%; width: 35vmax; height: 35vmax; animation-duration: 20s; animation-delay: -12s; }
   .bg::after { content: ""; position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px); background-size: 48px 48px; animation: grid 12s linear infinite; }
-
   @keyframes drift {
     0%   { transform: translate(0, 0) scale(1); }
     50%  { transform: translate(12vmax, 8vmax) scale(1.25); }
@@ -23,11 +23,36 @@
   }
   @keyframes grid { to { background-position: 48px 48px; } }
 
-  main { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; }
-  main a { color: #fff; font-size: clamp(2rem, 7vw, 4rem); font-weight: 700; text-decoration: underline; text-underline-offset: 8px; text-shadow: 0 0 24px rgba(154,194,255,.7), 0 0 60px rgba(124,58,237,.6); transition: transform .2s; }
-  main a:hover { color: #cfe2ff; transform: scale(1.06); }
+  .wrap { width: min(94vw, 520px); }
+  .panel { background: rgba(0,0,0,.6); border: 1px solid rgba(255,255,255,.18); border-radius: 12px; padding: 22px 20px; box-shadow: 0 0 40px rgba(124,58,237,.3); }
+  .panel h1 { margin: 0 0 14px; font-size: 1.6rem; text-align: center; }
+  label { display: block; margin-bottom: 6px; color: #ddd; font-size: .95rem; }
+  input[type=text] { width: 100%; padding: 12px 14px; font-size: 1.05rem; color: #fff; background: #0b0b12; border: 1px solid #444; border-radius: 8px; outline: none; }
+  input[type=text]:focus { border-color: #9ac2ff; box-shadow: 0 0 0 3px rgba(154,194,255,.25); }
+  .btn { display: inline-block; cursor: pointer; padding: 12px 18px; font-size: 1rem; font-weight: 600; color: #fff; background: linear-gradient(90deg, #7c3aed, #06b6d4); border: 0; border-radius: 8px; }
+  .btn:hover { filter: brightness(1.15); }
+  #startBtn { width: 100%; margin-top: 14px; }
+  .note { color: #aaa; font-size: .8rem; line-height: 1.5; margin: 12px 0 0; }
+  .note a { color: #9ac2ff; }
+  .err { color: #ff8a8a; font-size: .9rem; min-height: 1.2em; margin: 8px 0 0; }
 
-  footer { text-align: center; color: #999; font-size: .85rem; line-height: 1.8; }
+  .bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 8px; }
+  #who { color: #ddd; font-size: .95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #mute { padding: 8px 12px; font-size: .9rem; }
+
+  #game { display: block; width: 100%; height: auto; aspect-ratio: 4 / 5; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; touch-action: none; outline: none; box-shadow: 0 0 40px rgba(124,58,237,.35); }
+  .hint { color: #aaa; font-size: .85rem; margin: 10px 0 0; text-align: center; }
+
+  .board { margin-top: 18px; }
+  .board h2 { margin: 0 0 10px; font-size: 1.1rem; text-align: center; }
+  .board ol { margin: 0; padding: 0; list-style: none; counter-reset: rank; }
+  .board li { counter-increment: rank; display: flex; justify-content: space-between; gap: 12px; padding: 7px 4px; border-bottom: 1px solid rgba(255,255,255,.1); color: #e6e6e6; }
+  .board li::before { content: counter(rank) "."; width: 2em; color: #888; }
+  .board li span { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .board li strong { color: #9ac2ff; }
+  #boardMsg { text-align: center; color: #aaa; font-size: .9rem; margin: 8px 0 0; min-height: 1.2em; }
+
+  footer { margin-top: auto; padding-top: 28px; text-align: center; color: #999; font-size: .85rem; line-height: 1.8; }
   footer a { color: #bbb; }
 
   @media (prefers-reduced-motion: reduce) { .bg span, .bg::after { animation: none; } }
@@ -36,13 +61,408 @@
 <body>
   <div class="bg"><span></span><span></span><span></span></div>
 
-  <main>
-    <a href="https://youtu.be/5VbwAFiYsjI?si=oIlIoFIQnGyWx6mV" rel="noopener noreferrer">Klikkaa tästä!</a>
-  </main>
+  <div class="wrap">
+    <div id="start" class="panel">
+      <h1>Breakout</h1>
+      <label for="nick">Nimimerkki</label>
+      <input id="nick" type="text" maxlength="16" autocomplete="off" spellcheck="false" placeholder="2–16 merkkiä">
+      <p id="nickErr" class="err" role="alert"></p>
+      <button id="startBtn" class="btn" type="button">Aloita peli</button>
+      <p class="note">Kun peli päättyy, nimimerkkisi ja pisteesi tallennetaan julkiseen tulostauluun, jonka kaikki kävijät näkevät. Älä käytä oikeaa nimeäsi. Lisätietoja <a href="tietosuoja.html">tietosuojaselosteessa</a>.</p>
+    </div>
+
+    <div id="gameWrap" hidden>
+      <div class="bar">
+        <span id="who"></span>
+        <button id="mute" class="btn" type="button" aria-pressed="false">&#128266; Ääni päällä</button>
+      </div>
+      <canvas id="game" width="480" height="600" tabindex="0" aria-label="Breakout-peli"></canvas>
+      <p class="hint">Vasen ja oikea nuoli liikuttavat lautaa. Aloita välilyönnillä tai napauttamalla.</p>
+    </div>
+
+    <section class="board" aria-live="polite">
+      <h2>Tulostaulu</h2>
+      <ol id="list"></ol>
+      <p id="boardMsg"></p>
+    </section>
+  </div>
 
   <footer>
-    Tämä sivusto ei käytä evästeitä eikä seurantaa. Linkki avaa YouTuben, joka on kolmannen osapuolen palvelu.<br>
+    Tämä sivusto ei käytä evästeitä eikä tallenna mitään selaimeesi.<br>
     <a href="tietosuoja.html">Tietosuojaseloste</a> &middot; <a href="kayttoehdot.html">Käyttöehdot</a>
   </footer>
+
+<script>
+(function () {
+  // Tulostaulun tietokanta (Firebase Firestore). Täytetään, kun tietokanta on luotu.
+  var FB = { projectId: '', apiKey: '' };
+  var MAX_SCORE = 350;
+
+  var canvas = document.getElementById('game');
+  var ctx = canvas.getContext('2d');
+  var W = 480, H = 600;
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  ctx.scale(dpr, dpr);
+
+  var startPanel = document.getElementById('start');
+  var gameWrap = document.getElementById('gameWrap');
+  var nickInput = document.getElementById('nick');
+  var nickErr = document.getElementById('nickErr');
+  var whoEl = document.getElementById('who');
+  var muteBtn = document.getElementById('mute');
+  var listEl = document.getElementById('list');
+  var boardMsg = document.getElementById('boardMsg');
+
+  // ---------- Äänet ----------
+  var music = new Audio('gamesong.mp3');
+  music.loop = true;
+  music.volume = 0.5;
+  music.preload = 'auto';
+  function startMusic() {
+    if (music.paused) {
+      music.currentTime = 0;
+      var p = music.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
+  function stopMusic() {
+    music.pause();
+    music.currentTime = 0;
+  }
+  muteBtn.addEventListener('click', function () {
+    music.muted = !music.muted;
+    muteBtn.innerHTML = music.muted ? '&#128263; Ääni pois' : '&#128266; Ääni päällä';
+    muteBtn.setAttribute('aria-pressed', music.muted ? 'true' : 'false');
+    muteBtn.blur();
+    canvas.focus();
+  });
+
+  // ---------- Tulostaulu (Firestore REST) ----------
+  function fbReady() { return !!(FB.projectId && FB.apiKey); }
+  function fbBase() {
+    return 'https://firestore.googleapis.com/v1/projects/' + encodeURIComponent(FB.projectId) + '/databases/(default)/documents';
+  }
+  function loadBoard() {
+    if (!fbReady()) { boardMsg.textContent = 'Tulostaulu ei ole vielä käytössä.'; return; }
+    fetch(fbBase() + ':runQuery?key=' + encodeURIComponent(FB.apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ structuredQuery: {
+        from: [{ collectionId: 'scores' }],
+        orderBy: [{ field: { fieldPath: 'score' }, direction: 'DESCENDING' }],
+        limit: 10
+      } })
+    }).then(function (r) {
+      if (!r.ok) throw new Error('load ' + r.status);
+      return r.json();
+    }).then(function (rows) {
+      listEl.textContent = '';
+      var n = 0;
+      rows.forEach(function (row) {
+        if (!row.document || !row.document.fields) return;
+        var f = row.document.fields;
+        var li = document.createElement('li');
+        var name = document.createElement('span');
+        name.textContent = f.name && f.name.stringValue ? f.name.stringValue : '?';
+        var sc = document.createElement('strong');
+        sc.textContent = f.score && f.score.integerValue ? f.score.integerValue : '0';
+        li.appendChild(name);
+        li.appendChild(sc);
+        listEl.appendChild(li);
+        n++;
+      });
+      boardMsg.textContent = n ? '' : 'Ei vielä tuloksia. Ole ensimmäinen!';
+    }).catch(function () {
+      boardMsg.textContent = 'Tulostaulua ei voitu ladata.';
+    });
+  }
+  function submitScore() {
+    if (submitted || !fbReady() || score <= 0) return;
+    submitted = true;
+    var body = { fields: {
+      name: { stringValue: nick },
+      score: { integerValue: String(Math.min(score, MAX_SCORE)) },
+      createdAt: { timestampValue: new Date().toISOString() }
+    } };
+    fetch(fbBase() + '/scores?key=' + encodeURIComponent(FB.apiKey), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (r) {
+      if (!r.ok) throw new Error('save ' + r.status);
+      boardMsg.textContent = 'Pisteesi tallennettiin.';
+      loadBoard();
+    }).catch(function () {
+      boardMsg.textContent = 'Pisteiden tallennus ei onnistunut.';
+    });
+  }
+
+  // ---------- Peli ----------
+  var ballImg = new Image();
+  ballImg.src = 'gameballthing.png';
+
+  var COLS = 7, ROWS = 5, BW = 56, BH = 20, GAP = 6;
+  var OFFX = (W - (COLS * BW + (COLS - 1) * GAP)) / 2, OFFY = 64;
+  var COLORS = ['#ec4899', '#f97316', '#eab308', '#22c55e', '#06b6d4'];
+
+  var paddle = { w: 96, h: 12, x: W / 2 - 48, y: H - 40, speed: 520 };
+  var ball = { r: 15, x: 0, y: 0, vx: 0, vy: 0 };
+  var bricks = [], score = 0, lives = 3, state = 'ready';
+  var keys = { left: false, right: false };
+  var nick = '', started = false, submitted = false, loopRunning = false;
+
+  function resetBricks() {
+    bricks = [];
+    for (var r = 0; r < ROWS; r++) {
+      for (var c = 0; c < COLS; c++) {
+        bricks.push({ x: OFFX + c * (BW + GAP), y: OFFY + r * (BH + GAP), color: COLORS[r], alive: true });
+      }
+    }
+  }
+  function resetBall() {
+    ball.x = paddle.x + paddle.w / 2;
+    ball.y = paddle.y - ball.r;
+    ball.vx = 0;
+    ball.vy = 0;
+    state = 'ready';
+  }
+  function newGame() {
+    score = 0;
+    lives = 3;
+    submitted = false;
+    paddle.x = W / 2 - paddle.w / 2;
+    resetBricks();
+    resetBall();
+  }
+  function endGame(result) {
+    state = result;
+    ball.vx = 0;
+    ball.vy = 0;
+    stopMusic();
+    submitScore();
+  }
+  function launch() {
+    if (state === 'ready') {
+      var a = (Math.random() * 60 - 30) * Math.PI / 180;
+      var s = 340;
+      ball.vx = s * Math.sin(a);
+      ball.vy = -s * Math.cos(a);
+      state = 'play';
+      startMusic();
+    } else if (state === 'over' || state === 'win') {
+      newGame();
+    }
+  }
+  function clampPaddle() {
+    if (paddle.x < 0) paddle.x = 0;
+    if (paddle.x + paddle.w > W) paddle.x = W - paddle.w;
+  }
+
+  function step(dt) {
+    if (keys.left) paddle.x -= paddle.speed * dt;
+    if (keys.right) paddle.x += paddle.speed * dt;
+    clampPaddle();
+
+    if (state === 'ready') {
+      ball.x = paddle.x + paddle.w / 2;
+      ball.y = paddle.y - ball.r;
+      return;
+    }
+    if (state !== 'play') return;
+
+    ball.x += ball.vx * dt;
+    ball.y += ball.vy * dt;
+
+    if (ball.x - ball.r < 0) { ball.x = ball.r; ball.vx = Math.abs(ball.vx); }
+    if (ball.x + ball.r > W) { ball.x = W - ball.r; ball.vx = -Math.abs(ball.vx); }
+    if (ball.y - ball.r < 0) { ball.y = ball.r; ball.vy = Math.abs(ball.vy); }
+
+    if (ball.y - ball.r > H) {
+      lives--;
+      if (lives <= 0) endGame('over');
+      else resetBall();
+      return;
+    }
+
+    if (ball.vy > 0 &&
+        ball.y + ball.r >= paddle.y && ball.y + ball.r <= paddle.y + paddle.h + 10 &&
+        ball.x >= paddle.x - ball.r && ball.x <= paddle.x + paddle.w + ball.r) {
+      var hit = (ball.x - (paddle.x + paddle.w / 2)) / (paddle.w / 2);
+      hit = Math.max(-1, Math.min(1, hit));
+      var ang = hit * 1.05;
+      var sp = Math.min(Math.hypot(ball.vx, ball.vy) * 1.02, 620);
+      ball.vx = sp * Math.sin(ang);
+      ball.vy = -sp * Math.cos(ang);
+      ball.y = paddle.y - ball.r;
+    }
+
+    for (var i = 0; i < bricks.length; i++) {
+      var b = bricks[i];
+      if (!b.alive) continue;
+      var cx = b.x + BW / 2, cy = b.y + BH / 2;
+      var dx = ball.x - cx, dy = ball.y - cy;
+      var ox = (BW / 2 + ball.r) - Math.abs(dx);
+      var oy = (BH / 2 + ball.r) - Math.abs(dy);
+      if (ox > 0 && oy > 0) {
+        b.alive = false;
+        score += 10;
+        if (ox < oy) { ball.vx = (dx > 0 ? 1 : -1) * Math.abs(ball.vx); }
+        else { ball.vy = (dy > 0 ? 1 : -1) * Math.abs(ball.vy); }
+        break;
+      }
+    }
+
+    var left = 0;
+    for (var j = 0; j < bricks.length; j++) if (bricks[j].alive) left++;
+    if (left === 0) endGame('win');
+  }
+
+  function roundRect(x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.fillStyle = 'rgba(0,0,0,.55)';
+    ctx.fillRect(0, 0, W, H);
+
+    for (var i = 0; i < bricks.length; i++) {
+      var b = bricks[i];
+      if (!b.alive) continue;
+      ctx.save();
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 12;
+      ctx.fillStyle = b.color;
+      roundRect(b.x, b.y, BW, BH, 5);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    ctx.save();
+    var g = ctx.createLinearGradient(paddle.x, 0, paddle.x + paddle.w, 0);
+    g.addColorStop(0, '#7c3aed');
+    g.addColorStop(1, '#06b6d4');
+    ctx.shadowColor = '#9ac2ff';
+    ctx.shadowBlur = 14;
+    ctx.fillStyle = g;
+    roundRect(paddle.x, paddle.y, paddle.w, paddle.h, 6);
+    ctx.fill();
+    ctx.restore();
+
+    if (ballImg.complete && ballImg.naturalWidth > 0) {
+      var bw = ball.r * 2, bh = bw * ballImg.naturalHeight / ballImg.naturalWidth;
+      ctx.drawImage(ballImg, ball.x - bw / 2, ball.y - bh / 2, bw, bh);
+    } else {
+      ctx.fillStyle = '#3b9ae1';
+      ctx.beginPath();
+      ctx.arc(ball.x, ball.y, ball.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    ctx.fillStyle = '#e6e6e6';
+    ctx.font = '600 16px system-ui, sans-serif';
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'left';
+    ctx.fillText('Pisteet: ' + score, 16, 28);
+    ctx.textAlign = 'right';
+    var hearts = '';
+    for (var l = 0; l < lives; l++) hearts += '♥ ';
+    ctx.fillStyle = '#ec4899';
+    ctx.fillText(hearts, W - 16, 28);
+
+    if (state !== 'play') {
+      ctx.fillStyle = 'rgba(0,0,0,.6)';
+      ctx.fillRect(0, H / 2 - 44, W, 88);
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.font = '700 24px system-ui, sans-serif';
+      var t1 = 'Valmiina?', t2 = 'Paina välilyöntiä tai napauta';
+      if (state === 'over') { t1 = 'Peli ohi'; t2 = 'Paina välilyöntiä tai napauta uudelleen'; }
+      if (state === 'win') { t1 = 'Voitit! Pisteet: ' + score; t2 = 'Paina välilyöntiä tai napauta uudelleen'; }
+      ctx.fillText(t1, W / 2, H / 2 - 12);
+      ctx.font = '400 15px system-ui, sans-serif';
+      ctx.fillStyle = '#ccc';
+      ctx.fillText(t2, W / 2, H / 2 + 18);
+    }
+  }
+
+  var last = null;
+  function loop(ts) {
+    if (last === null) last = ts;
+    var dt = Math.min((ts - last) / 1000, 1 / 30);
+    last = ts;
+    step(dt / 2);
+    step(dt / 2);
+    draw();
+    requestAnimationFrame(loop);
+  }
+
+  // ---------- Syötteet ----------
+  function pointerX(e) {
+    var rect = canvas.getBoundingClientRect();
+    return (e.clientX - rect.left) * (W / rect.width);
+  }
+  canvas.addEventListener('pointerdown', function (e) {
+    paddle.x = pointerX(e) - paddle.w / 2;
+    clampPaddle();
+    launch();
+  });
+  canvas.addEventListener('pointermove', function (e) {
+    if (e.pointerType === 'mouse' && e.buttons === 0 && state !== 'play' && state !== 'ready') return;
+    paddle.x = pointerX(e) - paddle.w / 2;
+    clampPaddle();
+  });
+
+  window.addEventListener('keydown', function (e) {
+    if (!started) return;
+    var k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') { keys.left = true; e.preventDefault(); }
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') { keys.right = true; e.preventDefault(); }
+    else if (k === ' ' || k === 'Enter' || k === 'ArrowUp') { launch(); e.preventDefault(); }
+  });
+  window.addEventListener('keyup', function (e) {
+    var k = e.key;
+    if (k === 'ArrowLeft' || k === 'a' || k === 'A') keys.left = false;
+    else if (k === 'ArrowRight' || k === 'd' || k === 'D') keys.right = false;
+  });
+
+  // ---------- Aloitus ----------
+  function startGame() {
+    var v = nickInput.value.replace(/\s+/g, ' ').trim();
+    if (!/^[\p{L}\p{N} _-]{2,16}$/u.test(v)) {
+      nickErr.textContent = 'Nimimerkissä pitää olla 2–16 merkkiä: kirjaimia, numeroita, väli, _ tai -.';
+      nickInput.focus();
+      return;
+    }
+    nick = v;
+    nickErr.textContent = '';
+    whoEl.textContent = 'Pelaaja: ' + nick;
+    startPanel.hidden = true;
+    gameWrap.hidden = false;
+    started = true;
+    newGame();
+    if (!loopRunning) { loopRunning = true; requestAnimationFrame(loop); }
+    canvas.focus();
+  }
+  document.getElementById('startBtn').addEventListener('click', startGame);
+  nickInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); startGame(); }
+  });
+
+  loadBoard();
+})();
+</script>
 </body>
 </html>
