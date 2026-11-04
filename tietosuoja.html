@@ -23,7 +23,7 @@
   <p class="meta">Päivitetty 4.11.2026</p>
 
   <h2>1. Yleistä</h2>
-  <p>Tämä sivusto sisältää pienen selaimessa toimivan pelin ja julkisen tulostaulun. Sivustolla ei ole kirjautumista, kommentteja, analytiikkaa eikä mainoksia.</p>
+  <p>Tämä sivusto sisältää pienen selaimessa toimivan loputtoman pelin ja julkisen tulostaulun. Sivustolla ei ole kirjautumista, kommentteja, analytiikkaa eikä mainoksia.</p>
 
   <h2>2. Mitä tietoja käsitellään</h2>
   <p>Kun peli päättyy, tulostauluun tallennetaan vain kolme tietoa: valitsemasi <strong>nimimerkki</strong>, saamasi <strong>pisteet</strong> ja <strong>tallennusaika</strong>. Nimeä, sähköpostia tai muita yhteystietoja ei kysytä. Älä käytä nimimerkkinä omaa nimeäsi tai muita tietoja, joista sinut voi tunnistaa.</p>
@@ -41,8 +41,9 @@
   <h2>6. Palveluntarjoajat</h2>
   <p>Sivusto on julkaistu GitHub Pages -palvelussa (GitHub, Inc., Yhdysvallat). Kun avaat sivun, palvelun tarjoaja voi käsitellä teknisiä tietoja, kuten IP-osoitetta, osana palvelun toimintaa ja tietoturvaa. Lisätietoja:
     <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub General Privacy Statement</a>.</p>
-  <p>Tulostaulun tiedot (nimimerkki, pisteet ja aika) tallennetaan Googlen Firebase Firestore -tietokantaan (Google LLC / Google Cloud). Kun peli lataa tai tallentaa tulostaulua, myös Google voi käsitellä teknisiä tietoja, kuten IP-osoitetta, palvelun toiminnan vuoksi. Tietoja voidaan käsitellä myös EU:n ulkopuolella. Lisätietoja:
-    <a href="https://firebase.google.com/support/privacy" rel="noopener">Firebase Privacy and Security</a>.</p>
+  <p>Tulostaulun tiedot (nimimerkki, pisteet ja aika) tallennetaan Cloudflare D1 -tietokantaan, jota käytetään Cloudflare Workers -palvelun kautta (Cloudflare, Inc., Yhdysvallat). Kun peli lataa tai tallentaa tulostaulua, Cloudflare käsittelee teknisiä tietoja, kuten IP-osoitetta, palvelun toiminnan ja tietoturvan vuoksi. Tietoja voidaan käsitellä myös EU:n ulkopuolella. Lisätietoja:
+    <a href="https://www.cloudflare.com/privacypolicy/" rel="noopener">Cloudflare Privacy Policy</a>.</p>
+  <p>Väärinkäytösten estämiseksi tallennuspyyntöjen määrää rajoitetaan. Tätä varten IP-osoitteestasi lasketaan palautumaton tiiviste (hash) ja pyyntöjen lukumäärä, joita säilytetään vain lyhyen ajan (enintään muutama tunti) ja jotka poistetaan automaattisesti. Itse IP-osoitetta ei tallenneta tietokantaan.</p>
   <p>Verkkotunnuksen nimipalvelu (DNS) toimii Namecheapin kautta.</p>
 
   <h2>7. Oikeutesi</h2>
